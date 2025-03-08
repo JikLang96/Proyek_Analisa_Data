@@ -23,12 +23,22 @@ kemudian download file
 cd submission\dashboard\
 ```
 
-### 3.  install requirements.txt
+### 3. pilih virtual enviroment
+```bash
+pilih folder ekstensi .venv
+```
+
+### 4.  install requirements.txt
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. jalankan perintah streamlit
+### 5.  install pandas, matplotlib, streamlit, seaborn
+```bash
+pip install pandas matplotlib seaborn streamlit
+```
+
+### 6. jalankan perintah streamlit
 ```bash
 streamlit run dashboard.py
 ```
