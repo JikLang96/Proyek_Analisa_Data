@@ -45,8 +45,10 @@ def jenis_musim (jam_df):
     musim_df = jam_df.groupby(by="season").cnt.sum().reset_index() 
     return musim_df
 
-hari_df = pd.read_csv("D:/Submission/dashboard/data_hari.csv")
-jam_df = pd.read_csv("D:/Submission/dashboard/data_jam.csv")
+data_hari="https://raw.githubusercontent.com/JikLang96/Proyek_Analisa_Data/refs/heads/main/data_hari.csv"
+data_jam="https://raw.githubusercontent.com/JikLang96/Proyek_Analisa_Data/refs/heads/main/data_jam.csv"
+hari_df = pd.read_csv(data_hari)
+jam_df = pd.read_csv(data_jam)
 
 kolom_date = ["dteday"]
 hari_df.sort_values(by="dteday", inplace=True)
