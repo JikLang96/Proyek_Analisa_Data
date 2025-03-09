@@ -45,8 +45,8 @@ def jenis_musim (jam_df):
     musim_df = jam_df.groupby(by="season").cnt.sum().reset_index() 
     return musim_df
 
-hari_df = pd.read_csv("data_hari.csv")
-jam_df = pd.read_csv("data_jam.csv")
+hari_df = pd.read_csv("D:/Submission/dashboard/data_hari.csv")
+jam_df = pd.read_csv("D:/Submission/dashboard/data_jam.csv")
 
 kolom_date = ["dteday"]
 hari_df.sort_values(by="dteday", inplace=True)
@@ -119,19 +119,28 @@ st.metric("🛑 Total Casual", value=total_sum_casual_formatted)
 
 st.subheader("Performa penjualan dalam beberapa tahun") #subheader
 
-# mmebuat figure dengan ukuran (20, 4)
-fig1 = plt.figure(figsize=(20, 4))
+fig1=plt.figure(figsize=(20, 4))
 
-# menghitung jumlah pelanggan maksimum per bulan
-trend_bulanan = hari_df['cnt'].groupby(hari_df['dteday']).max()
+# Mengonversi kolom 'dteday' ke format datetime jika belum
+hari_df["dteday"] = pd.to_datetime(hari_df["dteday"])
 
-#membuat scatter plot serta mengatur sumbu y, judul lalu menampilkan dengan perintah plt.show
-plt.scatter(trend_bulanan.index, trend_bulanan.values, c="cyan", s=10, marker='o')
-plt.plot(trend_bulanan.index, trend_bulanan.values)
-plt.grid(True, linestyle='--', alpha=0.7)
-plt.ylabel('Jumlah')
-plt.title('Trend Penjualan Perusahaan', fontsize=14)
-plt.xticks(rotation=45)
+# Menghitung jumlah pelanggan maksimum per bulan
+trend_bulanan = hari_df.groupby(hari_df["dteday"].dt.to_period("M"))["cnt"].sum()
+
+# Membuat scatter plot serta mengatur sumbu, judul, dan grid
+plt.scatter(trend_bulanan.index.astype(str), trend_bulanan.values, c="cyan", s=10, marker='o', label="Total pelanggan")
+plt.plot(trend_bulanan.index.astype(str), trend_bulanan.values, linestyle="-", color="blue", alpha=0.7)
+
+# Menambahkan data label di setiap titik
+for i, txt in enumerate(trend_bulanan.values):
+    plt.text(trend_bulanan.index.astype(str)[i], txt + 5, f"{txt:.0f}", ha="center", fontsize=10, color="black")
+
+
+plt.grid(True, linestyle="--", alpha=0.7)
+plt.ylabel("Jumlah Pelanggan", fontsize=12)
+plt.title("Trend Penjualan Perusahaan", fontsize=14)
+plt.xticks(rotation=45, fontsize=10)
+plt.legend()
 st.pyplot(fig1)
 
 st.subheader("Total Pelanggan tiap musimnya") #subheader
@@ -202,9 +211,3 @@ plt.legend(title="Jenis Pelanggan")
 
 # Menampilkan plot
 st.pyplot(fig1)
-
-st.subheader("Menampilkan korelasi data ")
-#menampilkan kolerasi dengan heatmap
-cor=plt.figure(figsize=(12, 8))
-sns.heatmap(jam_df.corr(numeric_only=True), annot=True)
-st.pyplot(cor)
