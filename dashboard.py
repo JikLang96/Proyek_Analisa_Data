@@ -71,12 +71,24 @@ with st.sidebar:
     # Menambahkan logo perusahaan
     st.image("https://raw.githubusercontent.com/JikLang96/Logo_sepeda/refs/heads/main/logo%20sepeda.webp")
     
-        # Mengambil start_date & end_date dari date_input
-    start_date, end_date = st.date_input(
-        label='Rentang Waktu',
-        min_value=min_hari,
-        max_value=max_hari,
-        value=[min_hari, max_hari])
+    # Membuat rentang waktu dengan date_input
+    date_selection = st.date_input(
+    label='Rentang Waktu',
+    min_value=min_hari,
+    max_value=max_hari,
+    value=[min_hari, max_hari]
+)
+    
+# Mengatur start date agar ketika memilih satu rentang tanggal tidak terjadi error
+if isinstance(date_selection, tuple) or isinstance(date_selection, list):
+    if len(date_selection) == 2:
+        start_date, end_date = date_selection
+    else:
+        start_date = date_selection[0]
+        end_date = date_selection[0]
+else:
+    start_date = date_selection
+    end_date = date_selection
   
 main_hari = hari_df[(hari_df["dteday"] >= str(start_date)) & 
                        (hari_df["dteday"] <= str(end_date))]
@@ -124,10 +136,10 @@ st.subheader("Performa penjualan dalam beberapa tahun") #subheader
 fig1=plt.figure(figsize=(20, 4))
 
 # Mengonversi kolom 'dteday' ke format datetime jika belum
-hari_df["dteday"] = pd.to_datetime(hari_df["dteday"])
+#hari_df["dteday"] = pd.to_datetime(hari_df["dteday"])
 
 # Menghitung jumlah pelanggan maksimum per bulan
-trend_bulanan = hari_df.groupby(hari_df["dteday"].dt.to_period("M"))["cnt"].sum()
+trend_bulanan = main_hari.groupby(main_hari["dteday"].dt.to_period("M"))["cnt"].sum()
 
 # Membuat scatter plot serta mengatur sumbu, judul, dan grid
 plt.scatter(trend_bulanan.index.astype(str), trend_bulanan.values, c="cyan", s=10, marker='o', label="Total pelanggan")
@@ -147,7 +159,7 @@ st.pyplot(fig1)
 
 st.subheader("Total Pelanggan tiap musimnya") #subheader
 
-pivot = hari_df.groupby('season')['cnt'].sum()
+pivot = main_hari.groupby('season')['cnt'].sum()
 # Membuat barplot berdasarkan pivot_data yang telah dihitung
 fig, ax = plt.subplots(figsize=(15, 8))
 sns.barplot(
@@ -178,20 +190,21 @@ ax.tick_params(axis='y', labelsize=20)
 # Menampilkan plot
 st.pyplot(fig)
 
+
 st.subheader("Perbandingan Pelanggan yang Registered dengan Casual")
 
 fig1=plt.figure(figsize=(10, 6))
 
 # membuat variable jumlah dan pengguna
 pengguna = ['Registered', 'Casual']
-jumlah = [hari_df['registered'].sum(), hari_df['casual'].sum()]
+jumlah = [main_hari['registered'].sum(), main_hari['casual'].sum()]
 
 # Menentukan posisi sumbu-x
 x_pos = [0, 1]  # Posisi untuk "Registered" dan "Casual"
 
 # Membuat bar chart
 bars=plt.bar(x_pos[0], jumlah[0], width=0.4, label='Register', align='center', color='blue')
-bars2=plt.bar(x_pos[1], jumlah[1], width=0.4, label='Casual', align='center', color='cyan')
+bars2=plt.bar(x_pos[1], jumlah[1], width=0.4, label='Casual', align='center', color='blue')
 
 
 # Menambahkan label data pada setiap batang
@@ -209,7 +222,7 @@ plt.grid(True, linestyle='--', alpha=0.7)  # Menambahkan grid dengan garis putus
 plt.xlabel('Kategori Pelanggan')
 plt.ylabel('Jumlah Pelanggan')
 plt.title('Perbandingan Pelanggan Register dan Casual', fontsize=14)
-plt.legend(title="Jenis Pelanggan")
+#plt.legend(title="Jenis Pelanggan")
 
 # Menampilkan plot
 st.pyplot(fig1)
